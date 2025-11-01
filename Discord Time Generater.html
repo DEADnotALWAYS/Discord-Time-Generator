@@ -22,6 +22,17 @@
       display: flex;
       justify-content: center;
     }
+    .title {
+      text-align: center;
+      color: #ffffff;
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+      padding: 12px;
+      background: #5865F2;
+      border-radius: 8px;
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.35);
+    }
     .app {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -301,8 +312,8 @@
   </style>
 </head>
 <body>
-  <h2>Discord Timestamp Generator</h2>
   <div class="app">
+    <h2 class="title">Discord Timestamp Generator</h2>
     <div class="tabs">
       <div class="tab-btn active" data-tab="native">📱 Native Picker</div>
       <div class="tab-btn" data-tab="custom">🛠 Custom Picker</div>
@@ -799,4 +810,5 @@
 </body>
 
 </html>
+
 
