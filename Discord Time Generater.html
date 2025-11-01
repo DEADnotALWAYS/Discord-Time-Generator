@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Discord Timestamp Generator</title>
+  <link rel="icon" type="image/x-icon" href="favicon.png">
   <style>
     :root {
       --bg: #1e1e2e;
@@ -19,7 +20,24 @@
       margin: 0;
       padding: 2rem 1rem;
       display: flex;
-      justify-content: center;
+      flex-direction:column;
+      align-items:center;
+    }
+    .title-wrapper{
+      width:100%;
+      max-width:600px;
+      margin:0 auto 1rem auto;
+      text-align:center;
+    }
+    .title{
+      display:inline-block;
+      color:#fff;
+      font-size:26px;
+      font-weight:700;
+      padding:12px 24px;
+      background:#39a6ff;
+      border-radius:8px;
+      box-shadow:inset 0 0 8px rgba(0,0,0,.35);
     }
     .app {
       background: var(--panel);
@@ -300,6 +318,9 @@
   </style>
 </head>
 <body>
+  <div class="title-wrapper">
+    <h2 class="title">Discord Timestamp Generator</h2>
+  </div>
   <div class="app">
     <div class="tabs">
       <div class="tab-btn active" data-tab="native">📱 Native Picker</div>
@@ -796,3 +817,4 @@
   </script>
 </body>
 </html>
+
