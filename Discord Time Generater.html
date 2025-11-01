@@ -30,14 +30,15 @@
       text-align:center;
     }
     .title{
+      background:var(--panel);
+      border: 1px solid var(--border);
       display:inline-block;
       color:#fff;
       font-size:26px;
-      font-weight:700;
+      font-weight:500;
       padding:12px 24px;
-      background:#39a6ff;
       border-radius:8px;
-      box-shadow:inset 0 0 8px rgba(0,0,0,.35);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4)
     }
     .app {
       background: var(--panel);
@@ -502,7 +503,6 @@
       searchInput.style.display = 'none';
       timezoneOptions.classList.remove('show');
 
-      // Simple mapping of common city names to IANA timezones
       const cityToTimezoneMap = {
         "new york": "America/New_York",
         "los angeles": "America/Los_Angeles",
@@ -519,7 +519,6 @@
           tz.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-        // Check if the search term matches a city name
         const normalizedSearch = searchTerm.toLowerCase().trim();
         if (cityToTimezoneMap[normalizedSearch]) {
           filteredTimezones.unshift(cityToTimezoneMap[normalizedSearch]);
@@ -817,4 +816,3 @@
   </script>
 </body>
 </html>
-
