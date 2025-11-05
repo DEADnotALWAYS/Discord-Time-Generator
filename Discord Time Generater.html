@@ -848,14 +848,25 @@
       el.addEventListener("change", generateTimestamp)
     );
 
-    copyBtn.addEventListener("click", () => {
+    copyBtn.addEventListener("click", async () => {
       const text = code.textContent;
       if (!text.startsWith("<t:")) return;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("✅ Timestamp copied!");
-      }).catch(() => {
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = "Copied!";
+        copyBtn.disabled = true;
+        copyBtn.style.opacity = "0.8";
+        copyBtn.style.transform = "scale(0.98)";
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.disabled = false;
+          copyBtn.style.opacity = "";
+          copyBtn.style.transform = "";
+        }, 1200);
+      } catch (err) {
         alert("⚠️ Failed to copy. Try selecting manually.");
-      });
+      }
     });
   </script>
 </body>
