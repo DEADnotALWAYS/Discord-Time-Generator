@@ -10,7 +10,7 @@
       --bg: #1e1e2e;
       --panel: #2a2a40;
       --text: #f2f2f2;
-      --accent: #4ea0f0;
+      --accent: #506880;
       --border: #444;
     }
     body {
@@ -58,7 +58,7 @@
     }
     h1 {
       font-size: 1.4rem;
-      color: var(--accent);
+      color: var(--text);
       margin: 0;
       white-space: nowrap;
     }
@@ -120,7 +120,7 @@
     }
     .tab-btn.active {
       background: var(--accent);
-      color: black;
+      color: rgb(255, 255, 255);
       font-weight: bold;
     }
     .panel {
@@ -279,20 +279,19 @@
     
     .output-wrapper {
       display: flex;
-      align-items: stretch;  
-      justify-content: flex-start;
+      align-items: stretch;
       width: 100%;
       max-width: 600px;
       background: transparent;
       margin-top: 1.5rem;
-      overflow: hidden;
       border-radius: 6px;
+      overflow: hidden;
     }
 
     .output {
       flex: 1;
       font-family: monospace;
-      background: #222;
+      background: #242323;
       padding: 1rem;
       border-radius: 6px 0 0 6px;
       display: flex;
@@ -316,7 +315,7 @@
     .button-container button {
       background: var(--accent);
       border: none;
-      color: #000;
+      color: #ffffff;
       font-weight: bold;
       padding: 0 1rem;
       border-radius: 0 6px 6px 0;
@@ -329,6 +328,7 @@
       justify-content: center;
       transition: transform 0.15s ease, opacity 0.15s ease;
       box-sizing: border-box;
+      margin: 0;
     }
 
     @media (max-width: 600px) {
