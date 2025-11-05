@@ -103,27 +103,7 @@
     button:hover {
       opacity: 0.9;
     }
-    .output {
-      font-family: monospace;
-      margin-top: 1.5rem;
-      background: #222;
-      padding: 1rem;
-      border-radius: 6px;
-    }
-    .preview {
-      font-style: italic;
-      color: #cfc;
-      margin-top: 0.5rem;
-    }
-    .button-container {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    .button-container button {
-      flex: 1;
-      margin-top: 0;
-    }
+
     .tabs {
       display: flex;
       gap: 1rem;
@@ -296,6 +276,61 @@
       height: 100%;
       width: 100%;
     }
+    
+    .output-wrapper {
+      display: flex;
+      align-items: stretch;  
+      justify-content: flex-start;
+      width: 100%;
+      max-width: 600px;
+      background: transparent;
+      margin-top: 1.5rem;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .output {
+      flex: 1;
+      font-family: monospace;
+      background: #222;
+      padding: 1rem;
+      border-radius: 6px 0 0 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
+      line-height: 1.4;
+    }
+
+    .preview {
+      font-style: italic;
+      color: #cfc;
+      margin-top: 0.5rem;
+    }
+
+    .button-container {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .button-container button {
+      background: var(--accent);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      padding: 0 1rem;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      white-space: nowrap;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      box-sizing: border-box;
+    }
+
     @media (max-width: 600px) {
       .row,
       .timezone-panel {
@@ -311,9 +346,13 @@
       #card-count {
         width: 100%;
       }
-      .button-container {
+      .output-wrapper {
         flex-direction: column;
-        gap: 0.5rem;
+        align-items: stretch;
+      }
+      .button-container {
+        justify-content: flex-end;
+        margin-top: 0.5rem;
       }
     }
   </style>
@@ -374,13 +413,15 @@
       <option value="F" selected>Full Date (F)</option>
       <option value="R">Relative Time (R)</option>
     </select>
-    <div class="output">
-      <div><strong>Code:</strong> <span id="code">&lt;t:...&gt;</span></div>
-      <div class="preview" id="preview">Preview will appear here</div>
-    </div>
-    <div class="button-container">
-      <button id="generate">Generate Timestamp</button>
-      <button id="copy">Copy to Clipboard</button>
+
+    <div class="output-wrapper">
+      <div class="output">
+        <div><strong>Code:</strong> <span id="code">&lt;t:...&gt;</span></div>
+        <div class="preview" id="preview">Preview will appear here</div>
+      </div>
+      <div class="button-container">
+        <button id="copy">Copy</button>
+      </div>
     </div>
     <div class="header" id="timezone-header">
       <h1>Timezone Checker</h1>
@@ -454,7 +495,6 @@
   <script>
     const dt = document.getElementById("dt");
     const format = document.getElementById("format");
-    const generateBtn = document.getElementById("generate");
     const code = document.getElementById("code");
     const preview = document.getElementById("preview");
     const copyBtn = document.getElementById("copy");
@@ -470,18 +510,37 @@
     const timezoneCards = document.querySelectorAll(".timezone-card");
     const timezonePanel = document.getElementById("timezone-panel");
     const timezoneHeader = document.getElementById("timezone-header");
-    const now = new Date("2025-09-01T17:25:00+05:30"); // Set to 05:25 PM IST, September 01, 2025
+    const now = new Date();
     const timezones = Intl.supportedValuesOf('timeZone');
+    cardCountSelect.addEventListener("change", toggleTimezoneSection);
 
-    function toggleTimezoneSection() {
+    function generateTimestamp() {
+      let selectedDate;
+      if (document.getElementById("native").classList.contains("active")) {
+        const value = dt.value;
+        if (!value) return;
+        selectedDate = new Date(value);
+      } else {
+        let y = year.value;
+        let m = month.value - 1;
+        let d = day.value;
+        let h = parseInt(hour.value);
+        const min = minute.value;
+        const ampm = ampmEl.value;
+
+        if (ampm === "PM" && h < 12) h += 12;
+        if (ampm === "AM" && h === 12) h = 0;
+
+        selectedDate = new Date(y, m, d, h, min);
+      }
+
+      const timestamp = Math.floor(selectedDate.getTime() / 1000);
+      const formatType = format.value;
+      code.textContent = `<t:${timestamp}:${formatType}>`;
+      preview.textContent = getPreviewString(selectedDate, formatType);
+
       const count = parseInt(cardCountSelect.value);
-      const isEnabled = count > 0;
-      timezonePanel.style.display = isEnabled ? 'grid' : 'none';
-      localStorage.setItem('timezone-card-count', count);
-      if (isEnabled) {
-        timezoneCards.forEach((card, index) => {
-          card.style.display = index < count ? 'flex' : 'none';
-        });
+      if (count > 0) {
         timezoneCards.forEach(card => {
           const searchInput = card.querySelector('.search-input');
           if (searchInput.value) {
@@ -489,12 +548,9 @@
           }
         });
       }
-      generateTimestamp();
     }
 
-    cardCountSelect.addEventListener("change", toggleTimezoneSection);
-
-    timezoneCards.forEach((card, index) => {
+      timezoneCards.forEach((card, index) => {
       const addBtn = card.querySelector('.add-btn');
       const searchInput = card.querySelector('.search-input');
       const timezoneOptions = card.querySelector('.timezone-options');
@@ -548,6 +604,7 @@
           searchInput.style.display = 'block';
           searchInput.focus();
           updateTimezoneOptions('');
+          timezoneOptions.classList.add('show');
         }
       });
 
@@ -628,25 +685,31 @@
     }
 
     function updateDays() {
-      const y = parseInt(year.value);
-      const m = parseInt(month.value);
-      const daysInMonth = new Date(y, m, 0).getDate();
-      day.innerHTML = "";
+      const y = parseInt(year.value, 10);
+      const monthNumber = parseInt(month.value, 10); 
+      const daysInMonth = new Date(y, monthNumber, 0).getDate();
+      const prevSelected = parseInt(day.value, 10);
+      day.innerHTML = '';
       for (let d = 1; d <= daysInMonth; d++) {
-        const val = d.toString().padStart(2, "0");
-        day.innerHTML += `<option value="${d}">${val}/${new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long' })}</option>`;
+        const val = d.toString().padStart(2, '0');
+        const weekday = new Date(y, monthNumber - 1, d).toLocaleDateString('en-US', { weekday: 'short' });
+        day.innerHTML += `<option value="${d}">${val} / ${weekday}</option>`;
+      }
+      if (!isNaN(prevSelected) && prevSelected <= daysInMonth) {
+        day.value = prevSelected;
+      } else {
+        day.value = Math.min(prevSelected || 1, daysInMonth);
       }
     }
+    year.addEventListener('change', () => {
+      updateDays();
+      generateTimestamp();
+    });
+    month.addEventListener('change', () => {
+      updateDays();
+      generateTimestamp();
+    });
 
-    function populateDays(yearVal, monthVal) {
-      day.innerHTML = "";
-      const numDays = new Date(yearVal, monthVal, 0).getDate();
-      for (let d = 1; d <= numDays; d++) {
-        const dateObj = new Date(yearVal, monthVal - 1, d);
-        const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-        day.innerHTML += `<option value="${d}">${d} / ${weekday}</option>`;
-      }
-    }
 
     for (let h = 1; h <= 12; h++) {
       hour.innerHTML += `<option value="${h}">${h.toString().padStart(2, "0")}</option>`;
@@ -664,6 +727,25 @@
         generateTimestamp();
       });
     });
+    
+    function toggleTimezoneSection() {
+      const count = parseInt(cardCountSelect.value);
+      const isEnabled = count > 0;
+      timezonePanel.style.display = isEnabled ? 'grid' : 'none';
+      localStorage.setItem('timezone-card-count', count);
+      if (isEnabled) {
+        timezoneCards.forEach((card, index) => {
+          card.style.display = index < count ? 'flex' : 'none';
+        });
+        timezoneCards.forEach(card => {
+          const searchInput = card.querySelector('.search-input');
+          if (searchInput.value) {
+            updateTimezoneTime(card);
+          }
+        });
+      }
+      generateTimestamp();
+    }
 
     function updateTimezoneTime(card) {
       const searchInput = card.querySelector('.search-input');
@@ -743,50 +825,14 @@
       }
     }
 
-    function generateTimestamp() {
-      let selectedDate;
-      if (document.getElementById("native").classList.contains("active")) {
-        const value = dt.value;
-        if (!value) return;
-        selectedDate = new Date(value);
-      } else {
-        let y = year.value;
-        let m = month.value - 1;
-        let d = day.value;
-        let h = parseInt(hour.value);
-        const min = minute.value;
-        const ampm = ampmEl.value;
-
-        if (ampm === "PM" && h < 12) h += 12;
-        if (ampm === "AM" && h === 12) h = 0;
-
-        selectedDate = new Date(y, m, d, h, min);
-      }
-
-      const timestamp = Math.floor(selectedDate.getTime() / 1000);
-      const formatType = format.value;
-      code.textContent = `<t:${timestamp}:${formatType}>`;
-      preview.textContent = getPreviewString(selectedDate, formatType);
-
-      const count = parseInt(cardCountSelect.value);
-      if (count > 0) {
-        timezoneCards.forEach(card => {
-          const searchInput = card.querySelector('.search-input');
-          if (searchInput.value) {
-            updateTimezoneTime(card);
-          }
-        });
-      }
-    }
-
     window.addEventListener("load", () => {
-      populateDays(now.getFullYear(), now.getMonth() + 1);
       document.querySelector(".tab-btn[data-tab='native']").classList.remove("active");
       document.getElementById("native").classList.remove("active");
       document.querySelector(".tab-btn[data-tab='custom']").classList.add("active");
       document.getElementById("custom").classList.add("active");
       year.value = now.getFullYear();
       month.value = now.getMonth() + 1;
+      updateDays();
       day.value = now.getDate();
       let hours = now.getHours();
       ampmEl.value = hours >= 12 ? "PM" : "AM";
@@ -801,8 +847,6 @@
     [dt, year, month, day, hour, minute, ampmEl, format].forEach(el =>
       el.addEventListener("change", generateTimestamp)
     );
-
-    generateBtn.addEventListener("click", generateTimestamp);
 
     copyBtn.addEventListener("click", () => {
       const text = code.textContent;
